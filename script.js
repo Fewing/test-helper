@@ -120,7 +120,17 @@ function parseQuestions(data) {
 
         // 解析选项
         const optionsArray = 选项.split('|').map(opt => {
-            const [key, value] = opt.split('-');
+            // 优先使用'-'分隔，如果没有则使用'.'分隔
+            let key, value;
+            if (opt.includes('-')) {
+                [key, value] = opt.split('-', 2);
+            } else if (opt.includes('.')) {
+                [key, value] = opt.split('.', 2);
+            } else {
+                // 如果都没有分隔符，则整个作为key
+                key = opt;
+                value = '';
+            }
             return { key: key.trim(), value: value ? value.trim() : '' };
         });
 
