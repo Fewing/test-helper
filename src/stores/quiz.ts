@@ -76,6 +76,9 @@ export const useQuizStore = defineStore('quiz', () => {
     if (storedStats) {
       stats.value = { ...stats.value, ...JSON.parse(storedStats) }
     }
+
+    // 加载答题进度
+    loadQuizProgress()
   }
 
   const saveQuestions = () => {
@@ -88,6 +91,54 @@ export const useQuizStore = defineStore('quiz', () => {
 
   const saveStats = () => {
     localStorage.setItem('stats', JSON.stringify(stats.value))
+  }
+
+  const saveQuizProgress = () => {
+    if (currentQuizQuestions.value.length > 0) {
+      const progressData = {
+        currentQuestionIndex: currentQuestionIndex.value,
+        currentMode: currentMode.value,
+        userAnswers: userAnswers.value,
+        quizStartTime: quizStartTime.value,
+        currentQuizQuestions: currentQuizQuestions.value
+      }
+      localStorage.setItem('quizProgress', JSON.stringify(progressData))
+    }
+  }
+
+  const loadQuizProgress = () => {
+    const storedProgress = localStorage.getItem('quizProgress')
+    if (storedProgress) {
+      try {
+        const progressData = JSON.parse(storedProgress)
+        currentQuestionIndex.value = progressData.currentQuestionIndex || 0
+        currentMode.value = progressData.currentMode || 'random'
+        userAnswers.value = progressData.userAnswers || []
+        quizStartTime.value = progressData.quizStartTime
+        currentQuizQuestions.value = progressData.currentQuizQuestions || []
+      } catch (error) {
+        console.error('加载答题进度失败:', error)
+        clearQuizProgress()
+      }
+    }
+  }
+
+  const clearQuizProgress = () => {
+    localStorage.removeItem('quizProgress')
+  }
+
+  const hasQuizProgress = () => {
+    const storedProgress = localStorage.getItem('quizProgress')
+    if (!storedProgress) return false
+    
+    try {
+      const progressData = JSON.parse(storedProgress)
+      return progressData.currentQuizQuestions && 
+             progressData.currentQuizQuestions.length > 0 &&
+             progressData.currentQuestionIndex < progressData.currentQuizQuestions.length
+    } catch {
+      return false
+    }
   }
 
   const setQuestions = (newQuestions: Question[]) => {
@@ -155,6 +206,7 @@ export const useQuizStore = defineStore('quiz', () => {
     }
 
     saveStats()
+    saveQuizProgress()
     return isCorrect
   }
 
@@ -182,6 +234,8 @@ export const useQuizStore = defineStore('quiz', () => {
 
   const nextQuestion = () => {
     currentQuestionIndex.value++
+    // 保存答题进度
+    saveQuizProgress()
     return currentQuestionIndex.value < currentQuizQuestions.value.length
   }
 
@@ -191,6 +245,8 @@ export const useQuizStore = defineStore('quiz', () => {
       stats.value.studyTime += totalTime
       saveStats()
     }
+    // 清除答题进度
+    clearQuizProgress()
   }
 
   const clearWrongQuestions = () => {
@@ -235,7 +291,9 @@ export const useQuizStore = defineStore('quiz', () => {
     finishQuiz,
     clearWrongQuestions,
     getCurrentQuestion,
-    getQuestionProgress
+    getQuestionProgress,
+    clearQuizProgress,
+    hasQuizProgress
   }
 })
 

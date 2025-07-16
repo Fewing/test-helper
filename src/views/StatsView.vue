@@ -14,19 +14,19 @@
           <div class="stat-number">{{ quizStore.stats.totalAnswered }}</div>
           <div class="stat-label">总答题数</div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">✅</div>
           <div class="stat-number">{{ quizStore.correctRate }}%</div>
           <div class="stat-label">正确率</div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">❌</div>
           <div class="stat-number">{{ quizStore.wrongQuestionCount }}</div>
           <div class="stat-label">错题总数</div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">⏱️</div>
           <div class="stat-number">{{ quizStore.stats.studyTime }}</div>
@@ -36,36 +36,6 @@
 
       <!-- 详细统计 -->
       <div class="detailed-stats">
-        <div class="stats-section">
-          <h3>📈 答题分析</h3>
-          <div class="stats-content">
-            <div class="progress-item">
-              <div class="progress-label">
-                <span>正确题数</span>
-                <span>{{ quizStore.stats.correctAnswers }} / {{ quizStore.stats.totalAnswered }}</span>
-              </div>
-              <div class="progress-bar">
-                <div 
-                  class="progress-fill correct" 
-                  :style="{ width: quizStore.correctRate + '%' }"
-                ></div>
-              </div>
-            </div>
-            
-            <div class="progress-item">
-              <div class="progress-label">
-                <span>错误题数</span>
-                <span>{{ quizStore.stats.totalAnswered - quizStore.stats.correctAnswers }} / {{ quizStore.stats.totalAnswered }}</span>
-              </div>
-              <div class="progress-bar">
-                <div 
-                  class="progress-fill wrong" 
-                  :style="{ width: (100 - quizStore.correctRate) + '%' }"
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div class="stats-section">
           <h3>📚 题库信息</h3>
@@ -88,11 +58,7 @@
         <div class="stats-section" v-if="recentActivity.length > 0">
           <h3>🕒 最近活动</h3>
           <div class="stats-content">
-            <div 
-              v-for="activity in recentActivity" 
-              :key="activity.timestamp"
-              class="activity-item"
-            >
+            <div v-for="activity in recentActivity" :key="activity.timestamp" class="activity-item">
               <div class="activity-icon" :class="{ correct: activity.isCorrect, wrong: !activity.isCorrect }">
                 {{ activity.isCorrect ? '✅' : '❌' }}
               </div>
@@ -101,17 +67,6 @@
                 <div class="activity-time">{{ formatTime(activity.timestamp) }}</div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 学习建议 -->
-      <div class="suggestions">
-        <h3>💡 学习建议</h3>
-        <div class="suggestion-list">
-          <div v-for="suggestion in suggestions" :key="suggestion.id" class="suggestion-item">
-            <div class="suggestion-icon">{{ suggestion.icon }}</div>
-            <div class="suggestion-text">{{ suggestion.text }}</div>
           </div>
         </div>
       </div>
@@ -143,59 +98,13 @@ const recentActivity = computed(() => {
     .reverse()
 })
 
-const suggestions = computed(() => {
-  const suggestions = []
-  
-  if (quizStore.stats.totalAnswered === 0) {
-    suggestions.push({
-      id: 1,
-      icon: '🚀',
-      text: '开始你的第一次刷题练习吧！'
-    })
-  } else {
-    if (quizStore.correctRate < 60) {
-      suggestions.push({
-        id: 2,
-        icon: '📖',
-        text: '正确率较低，建议先复习相关知识点'
-      })
-    }
-    
-    if (quizStore.wrongQuestionCount > 0) {
-      suggestions.push({
-        id: 3,
-        icon: '🔄',
-        text: `你有 ${quizStore.wrongQuestionCount} 道错题，建议重点练习`
-      })
-    }
-    
-    if (quizStore.correctRate >= 80) {
-      suggestions.push({
-        id: 4,
-        icon: '🎉',
-        text: '正确率很高，继续保持！'
-      })
-    }
-    
-    if (quizStore.stats.studyTime < 30) {
-      suggestions.push({
-        id: 5,
-        icon: '⏰',
-        text: '建议每天至少学习30分钟'
-      })
-    }
-  }
-  
-  return suggestions
-})
-
 const formatTime = (timestamp: number) => {
   const now = Date.now()
   const diff = now - timestamp
   const minutes = Math.floor(diff / (1000 * 60))
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)
-  
+
   if (days > 0) {
     return `${days}天前`
   } else if (hours > 0) {
@@ -461,35 +370,35 @@ const goHome = () => {
   .container {
     padding: 0 1rem;
   }
-  
+
   .page-header {
     flex-direction: column;
     gap: 1rem;
     padding: 1.5rem;
   }
-  
+
   .page-header h2 {
     font-size: 1.5rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
   }
-  
+
   .stat-card {
     padding: 1.5rem;
   }
-  
+
   .stat-number {
     font-size: 2rem;
   }
-  
+
   .stats-section,
   .suggestions {
     padding: 1.5rem;
   }
-  
+
   .progress-label {
     flex-direction: column;
     align-items: flex-start;
@@ -497,4 +406,3 @@ const goHome = () => {
   }
 }
 </style>
-

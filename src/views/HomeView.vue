@@ -175,6 +175,8 @@ const parseQuestions = (data: any[][]) => {
   }
 
   quizStore.setQuestions(questions)
+  quizStore.clearQuizProgress()
+  quizStore.clearWrongQuestions()
   alert(`成功加载 ${questions.length} 道题目！`)
 }
 
