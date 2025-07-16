@@ -156,7 +156,7 @@ const parseQuestions = (data: any[][]) => {
     // 解析答案
     let correctAnswer: string | string[] = 答案.toString().trim()
     if (type === 'multiple') {
-      correctAnswer = correctAnswer.split('').sort()
+      correctAnswer = (correctAnswer as string).split('').sort()
     }
 
     const question: Question = {
