@@ -11,28 +11,16 @@
       <div class="upload-section">
         <div class="upload-card">
           <h3>📁 上传题库文件</h3>
-          <div 
-            class="upload-area" 
-            :class="{ 'drag-over': isDragOver }"
-            @click="triggerFileInput"
-            @dragover.prevent="handleDragOver"
-            @dragleave.prevent="handleDragLeave"
-            @drop.prevent="handleDrop"
-          >
+          <div class="upload-area" :class="{ 'drag-over': isDragOver }" @click="triggerFileInput"
+            @dragover.prevent="handleDragOver" @dragleave.prevent="handleDragLeave" @drop.prevent="handleDrop">
             <div class="upload-icon">📤</div>
             <p>点击或拖拽Excel文件到此处</p>
-            <input 
-              ref="fileInput"
-              type="file" 
-              accept=".xlsx,.xls" 
-              @change="handleFileUpload"
-              style="display: none"
-            >
+            <input ref="fileInput" type="file" accept=".xlsx,.xls" @change="handleFileUpload" style="display: none">
             <button class="upload-btn">选择文件</button>
           </div>
           <div v-if="quizStore.questionCount > 0" class="file-info">
             <p>已加载题目：<span>{{ quizStore.questionCount }}</span> 道</p>
-            <button class="btn btn-primary" @click="startRandomQuiz">开始随机刷题</button>
+            <button class="btn btn-primary" @click="continueQuiz">继续上次答题</button>
           </div>
         </div>
       </div>
@@ -119,7 +107,7 @@ const processFile = (file: File) => {
 
 const parseQuestions = (data: any[][]) => {
   const questions: Question[] = []
-  
+
   // 跳过标题行
   for (let i = 1; i < data.length; i++) {
     const row = data[i]
@@ -178,6 +166,14 @@ const parseQuestions = (data: any[][]) => {
   quizStore.clearQuizProgress()
   quizStore.clearWrongQuestions()
   alert(`成功加载 ${questions.length} 道题目！`)
+}
+
+const continueQuiz = () => {
+  try {
+    router.push('/quiz')
+  } catch (error) {
+    alert((error as Error).message)
+  }
 }
 
 const startRandomQuiz = () => {
@@ -385,23 +381,22 @@ const startWrongQuiz = () => {
   .container {
     padding: 0 1rem;
   }
-  
+
   .welcome-section h2 {
     font-size: 2rem;
   }
-  
+
   .upload-card,
   .mode-card {
     padding: 1.5rem;
   }
-  
+
   .upload-area {
     padding: 2rem 1rem;
   }
-  
+
   .mode-cards {
     grid-template-columns: 1fr;
   }
 }
 </style>
-

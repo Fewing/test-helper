@@ -154,11 +154,17 @@ export const useQuizStore = defineStore('quiz', () => {
     if (mode === 'wrong' && wrongQuestions.value.length === 0) {
       throw new Error('错题库为空，请先进行随机刷题！')
     }
-
+    // 重置状态
     currentMode.value = mode
     currentQuestionIndex.value = 0
     userAnswers.value = []
     quizStartTime.value = Date.now()
+    clearQuizProgress()
+    // 重置统计
+    stats.value.totalAnswered = 0
+    stats.value.correctAnswers = 0
+    stats.value.studyTime = 0
+    saveStats()
 
     // 准备题目列表
     if (mode === 'random') {

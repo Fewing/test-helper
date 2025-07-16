@@ -106,6 +106,7 @@ const progress = computed(() => quizStore.getQuestionProgress())
 
 onMounted(() => {
   if (!currentQuestion.value) {
+    alert('请先开始刷题')
     router.push('/')
   }
 })
