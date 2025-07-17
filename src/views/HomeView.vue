@@ -94,7 +94,7 @@ const processFile = (file: File) => {
       const data = new Uint8Array(e.target?.result as ArrayBuffer)
       const workbook = XLSX.read(data, { type: 'array' })
       const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][]
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][]
 
       parseQuestions(jsonData)
     } catch (error) {
@@ -105,7 +105,7 @@ const processFile = (file: File) => {
   reader.readAsArrayBuffer(file)
 }
 
-const parseQuestions = (data: any[][]) => {
+const parseQuestions = (data: unknown[][]) => {
   const questions: Question[] = []
 
   // 跳过标题行
@@ -113,9 +113,10 @@ const parseQuestions = (data: any[][]) => {
     const row = data[i]
     if (!row || row.length < 8) continue
 
-    const [序号, 一级纲要, 二级纲要, 题目分类, 题型, 题干, 选项, 答案, 题目依据, 试题分数, , , , 判断题解析] = row
+    const [序号, , , 题目分类, 题型, 题干, 选项, 答案, 题目依据, 试题分数, , , , 判断题解析] = row
 
-    if (!题干 || !选项 || !答案) continue
+    // 类型保护：确保必要字段是字符串类型
+    if (typeof 题干 !== 'string' || typeof 选项 !== 'string' || !答案) continue
 
     // 解析选项
     const optionsArray = 选项.split('|').map((opt: string) => {
@@ -135,28 +136,28 @@ const parseQuestions = (data: any[][]) => {
 
     // 确定题型
     let type: 'single' | 'multiple' | 'judge' = 'single'
-    if (题型 && 题型.includes('多选')) {
+    if (typeof 题型 === 'string' && 题型.includes('多选')) {
       type = 'multiple'
-    } else if (题型 && 题型.includes('判断')) {
+    } else if (typeof 题型 === 'string' && 题型.includes('判断')) {
       type = 'judge'
     }
 
     // 解析答案
-    let correctAnswer: string | string[] = 答案.toString().trim()
+    let correctAnswer: string | string[] = String(答案).trim()
     if (type === 'multiple') {
       correctAnswer = (correctAnswer as string).split('').sort()
     }
 
     const question: Question = {
-      id: 序号 || questions.length + 1,
+      id: (typeof 序号 === 'number' || typeof 序号 === 'string') ? 序号 : questions.length + 1,
       type: type,
       question: 题干.trim(),
       options: optionsArray,
       answer: correctAnswer,
-      explanation: 判断题解析 || '',
-      score: 试题分数 || 1,
-      category: 题目分类 || '',
-      source: 题目依据 || ''
+      explanation: typeof 判断题解析 === 'string' ? 判断题解析 : '',
+      score: typeof 试题分数 === 'number' ? 试题分数 : 1,
+      category: typeof 题目分类 === 'string' ? 题目分类 : '',
+      source: typeof 题目依据 === 'string' ? 题目依据 : ''
     }
 
     questions.push(question)
